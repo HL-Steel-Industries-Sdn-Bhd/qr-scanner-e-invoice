@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>QR 码扫描器 · 自动打开链接</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+  <title>QR Code Scanner · Auto-Open Links</title>
   <style>
     * {
       box-sizing: border-box;
@@ -17,40 +17,47 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
       padding: 16px;
+      margin: 0;
     }
 
     .scanner-card {
       max-width: 560px;
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 36px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 40px;
       padding: 28px 24px 32px;
-      box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.5);
-      transition: all 0.2s;
+      box-shadow: 0 30px 50px -15px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     h2 {
       color: white;
       font-weight: 500;
-      font-size: 1.9rem;
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
+      font-size: 2rem;
+      letter-spacing: -0.3px;
+      margin: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      line-height: 1.2;
     }
 
     .subhead {
-      color: #a6b4e0;
-      margin-bottom: 24px;
+      color: #b4c2f0;
+      margin: 0 0 4px 0;
       font-size: 1rem;
-      border-left: 3px solid #5f7ef2;
-      padding-left: 16px;
+      border-left: 4px solid #5f7ef2;
+      padding-left: 18px;
+      font-weight: 400;
+      letter-spacing: 0.2px;
     }
 
     /* 扫描器容器 */
@@ -58,11 +65,11 @@
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      background: #0e121f;
-      border-radius: 28px;
+      background: #0b0f18;
+      border-radius: 32px;
       overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 12px 24px -8px black;
-      margin-bottom: 22px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 18px 30px -12px black;
+      margin: 4px 0 6px;
     }
 
     #scannerVideo {
@@ -70,6 +77,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      transform: scaleX(-1); /* 镜像效果，更自然 */
     }
 
     .scan-overlay {
@@ -82,35 +90,41 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(8, 12, 24, 0.7);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 5;
-      transition: opacity 0.25s;
+      background: rgba(6, 10, 20, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 10;
+      transition: opacity 0.3s ease, visibility 0.3s;
+      visibility: visible;
     }
 
     .scan-overlay.hidden {
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
     }
 
     .scan-icon {
-      font-size: 64px;
+      font-size: 68px;
       margin-bottom: 12px;
-      opacity: 0.9;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
     }
 
     .overlay-text {
       color: white;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: 500;
-      margin-bottom: 18px;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 6px black;
     }
 
     .overlay-hint {
-      color: #b1c3ff;
-      font-size: 0.95rem;
-      margin-bottom: 24px;
+      color: #cdd9ff;
+      font-size: 1rem;
+      margin-bottom: 28px;
+      background: rgba(0,0,0,0.3);
+      padding: 6px 18px;
+      border-radius: 30px;
     }
 
     .btn-primary {
@@ -118,167 +132,252 @@
       border: none;
       color: white;
       font-weight: 600;
-      padding: 14px 28px;
+      padding: 14px 32px;
       border-radius: 60px;
       font-size: 1.2rem;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(47, 91, 234, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: 0.15s;
-      backdrop-filter: blur(5px);
+      box-shadow: 0 10px 22px rgba(47, 91, 234, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+      letter-spacing: 0.3px;
     }
 
     .btn-primary:hover {
       background: #517ef0;
-      transform: scale(1.02);
-      box-shadow: 0 10px 24px #2f5bea80;
+      transform: scale(1.03);
+      box-shadow: 0 14px 28px #2f5bea80;
     }
 
     .btn-primary:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
-    /* 扫描框装饰 (静态视觉) */
+    /* 扫描框装饰 */
     .scan-frame {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
-      border: 2px solid rgba(95, 126, 242, 0.5);
-      border-radius: 20px;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      border: 2px solid rgba(95, 126, 242, 0.45);
+      border-radius: 24px;
       pointer-events: none;
       z-index: 2;
-      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.25);
     }
 
     .corner {
       position: absolute;
-      width: 28px;
-      height: 28px;
-      border-color: #5f9ef2;
+      width: 32px;
+      height: 32px;
+      border-color: #7b9cf0;
       border-style: solid;
-      z-index: 3;
+      z-index: 4;
+      filter: drop-shadow(0 0 6px #2f5bea);
     }
 
-    .corner-tl { top: 12px; left: 12px; border-width: 4px 0 0 4px; border-radius: 8px 0 0 0; }
-    .corner-tr { top: 12px; right: 12px; border-width: 4px 4px 0 0; border-radius: 0 8px 0 0; }
-    .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 4px 4px; border-radius: 0 0 0 8px; }
-    .corner-br { bottom: 12px; right: 12px; border-width: 0 4px 4px 0; border-radius: 0 0 8px 0; }
+    .corner-tl { top: 10px; left: 10px; border-width: 4px 0 0 4px; border-radius: 10px 0 0 0; }
+    .corner-tr { top: 10px; right: 10px; border-width: 4px 4px 0 0; border-radius: 0 10px 0 0; }
+    .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 4px 4px; border-radius: 0 0 0 10px; }
+    .corner-br { bottom: 10px; right: 10px; border-width: 0 4px 4px 0; border-radius: 0 0 10px 0; }
 
-    /* 控制栏 */
     .control-bar {
       display: flex;
       gap: 14px;
       justify-content: center;
-      margin-top: 8px;
+      flex-wrap: wrap;
+      margin: 4px 0 2px;
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #e0e7ff;
-      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e4ebff;
+      padding: 12px 26px;
       border-radius: 50px;
       font-weight: 500;
       font-size: 1rem;
       cursor: pointer;
-      backdrop-filter: blur(5px);
-      transition: 0.15s;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
       flex: 0 1 auto;
+      letter-spacing: 0.2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.18);
       color: white;
+      border-color: rgba(255,255,255,0.3);
     }
 
     #stopScanner {
-      display: none;  /* 默认隐藏，启动相机后显示 */
+      display: none;
     }
 
-    .status-area {
-      margin-top: 24px;
-      padding: 14px 18px;
-      background: #0f1629;
-      border-radius: 22px;
-      color: #b7c9ff;
-      font-size: 0.95rem;
-      border-left: 5px solid #5f7ef2;
+    /* 结果显示卡片 —— 这就是新增的框框，清晰显示扫描内容 */
+    .scan-result-box {
+      background: rgba(16, 22, 40, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 24px;
+      padding: 18px 20px;
+      margin: 8px 0 0;
+      color: #eef3ff;
+      font-size: 0.98rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      transition: all 0.25s;
       word-break: break-word;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .status-area a {
+    .result-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8e9fc7;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .result-content {
+      background: #0b101f;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 1rem;
+      border-left: 4px solid #5f7ef2;
+      color: #d4e0ff;
+      word-break: break-all;
+      line-height: 1.5;
+      transition: background 0.2s;
+    }
+
+    .result-content a {
       color: #aac8ff;
       text-decoration: underline;
       text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .link-badge {
+      background: #2f5bea30;
+      color: #bdd3ff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      border: 1px solid #5f7ef250;
+    }
+
+    .status-area {
+      margin-top: 4px;
+      padding: 12px 16px;
+      background: rgba(15, 22, 41, 0.8);
+      border-radius: 20px;
+      color: #b7c9ff;
+      font-size: 0.9rem;
+      border-left: 5px solid #5f7ef2;
+      word-break: break-word;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .footer-note {
-      margin-top: 16px;
+      margin-top: 8px;
       text-align: center;
       color: #6a7aa3;
       font-size: 0.8rem;
+      letter-spacing: 0.2px;
     }
 
     canvas {
       display: none;
     }
+
+    @media (max-width: 480px) {
+      .scanner-card {
+        padding: 20px 16px 24px;
+      }
+    }
   </style>
-  <!-- jsQR 库 (轻量级二维码解析) -->
+  <!-- jsQR library -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
 <div class="scanner-card">
   <h2>
-    <span>📸 链接扫描</span>
+    <span>📸 Link Scanner</span>
   </h2>
-  <div class="subhead">扫描 QR 码 · 自动打开网页</div>
+  <div class="subhead">Scan QR code · Auto-open webpages</div>
 
   <!-- 扫描区域 -->
   <div class="qr-viewport">
-    <!-- 摄像头画面 -->
     <video id="scannerVideo" playsinline></video>
     
-    <!-- 静态扫描框装饰 -->
     <div class="scan-frame"></div>
     <div class="corner corner-tl"></div>
     <div class="corner corner-tr"></div>
     <div class="corner corner-bl"></div>
     <div class="corner corner-br"></div>
 
-    <!-- 覆盖层：提示/启动 -->
+    <!-- 覆盖层 -->
     <div id="scannerOverlay" class="scan-overlay">
       <div class="scan-icon">📷</div>
-      <div class="overlay-text">相机待启动</div>
-      <div class="overlay-hint">将二维码置于框内</div>
-      <button class="btn-primary" id="startScannerBtn">🔍 启动扫描</button>
+      <div class="overlay-text">Camera ready</div>
+      <div class="overlay-hint">Position QR code inside frame</div>
+      <button class="btn-primary" id="startScannerBtn">🔍 Start Scanning</button>
     </div>
   </div>
 
   <!-- 控制按钮组 -->
   <div class="control-bar">
-    <button class="btn-secondary" id="stopScanner">⏹️ 停止相机</button>
-    <button class="btn-secondary" id="resetScannerBtn" style="display: none;">🔄 重新扫描</button>
+    <button class="btn-secondary" id="stopScanner">⏹️ Stop Camera</button>
+    <button class="btn-secondary" id="resetScannerBtn" style="display: none;">🔄 Scan Again</button>
   </div>
 
-  <!-- 状态/结果展示区 -->
+  <!-- 🆕 核心：显示QR扫描出的文字/链接的框框 -->
+  <div class="scan-result-box" id="scanResultBox">
+    <div class="result-label">
+      <span>🔍 Scanned Content</span>
+    </div>
+    <div class="result-content" id="resultText">
+      <span style="color: #7b8bb0;">Waiting for scan…</span>
+    </div>
+    <div id="linkIndicator" style="display: none;" class="link-badge">
+      🌐 Link detected — auto-opening
+    </div>
+  </div>
+
+  <!-- 状态栏 -->
   <div class="status-area" id="statusDisplay">
-    ⚡ 点击「启动扫描」并授权摄像头<br>扫描到链接将自动新标签页打开。
+    ⚡ Press "Start Scanning" and allow camera.<br>Links will open automatically.
   </div>
   <div class="footer-note">
-    扫描后自动跳转 · 仅解析链接 QR
+    Auto-redirect after scan · Link QR only
   </div>
 </div>
 
-<!-- 隐藏 canvas 用于 jsQR 解析 -->
 <canvas id="scannerCanvas"></canvas>
 
 <script>
   (function(){
     "use strict";
 
-    // DOM 元素
+    // DOM elements
     const video = document.getElementById('scannerVideo');
     const canvas = document.getElementById('scannerCanvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -287,35 +386,53 @@
     const stopBtn = document.getElementById('stopScanner');
     const resetBtn = document.getElementById('resetScannerBtn');
     const statusDisplay = document.getElementById('statusDisplay');
+    const resultTextDiv = document.getElementById('resultText');
+    const linkIndicator = document.getElementById('linkIndicator');
+    const scanResultBox = document.getElementById('scanResultBox');
 
-    // 状态变量
-    let stream = null;                // MediaStream
-    let scanningActive = false;       // 是否正在循环扫描
-    let animationFrame = null;        // requestAnimationFrame id
-    let lastScannedText = '';         // 避免短时间内重复打开同一链接
-    let scanCooldown = false;         // 防止连续弹窗
+    // State
+    let stream = null;
+    let scanningActive = false;
+    let animationFrame = null;
+    let lastScannedText = '';
+    let scanCooldown = false;
+    const COOLDOWN_MS = 1800;
 
-    // ---------- 辅助函数 ----------
     function setStatus(text, isGood = true) {
       statusDisplay.innerHTML = text;
-      // 简单样式 (不加额外类，保留干净)
     }
 
-    // 检查是否为有效URL (并确保是http/https，也支持自定义协议但以防万一)
+    // 更新显示框内容 (文字/链接)
+    function updateResultDisplay(qrText, isLink = false) {
+      if (!qrText) {
+        resultTextDiv.innerHTML = '<span style="color: #7b8bb0;">Waiting for scan…</span>';
+        linkIndicator.style.display = 'none';
+        return;
+      }
+      
+      // 转义HTML防止XSS，同时保留链接可点击
+      const escapedText = qrText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      if (isLink) {
+        // 显示为可点击链接
+        resultTextDiv.innerHTML = `<a href="${escapedText}" target="_blank" rel="noopener noreferrer">${escapedText}</a>`;
+        linkIndicator.style.display = 'inline-flex';
+      } else {
+        resultTextDiv.innerHTML = `<span style="color:#d4e0ff;">${escapedText}</span>`;
+        linkIndicator.style.display = 'none';
+      }
+    }
+
     function isValidHttpUrl(str) {
-      // 宽松匹配: 以 http:// https:// 开头，或者包含常见域名格式
       if (!str) return false;
       const trimmed = str.trim();
-      // 尝试构造 URL
       try {
         const url = new URL(trimmed);
         return url.protocol === 'http:' || url.protocol === 'https:';
       } catch (_) {
-        // 如果不是标准URL，但可能是 "example.com/page" 之类的? 但我们希望是完整链接
-        // 额外判断：如果包含 . 且没有空格，尝试加https再测
         if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/\S*)?$/.test(trimmed)) {
           try {
-            const url2 = new URL('https://' + trimmed);
+            new URL('https://' + trimmed);
             return true;
           } catch(e) { return false; }
         }
@@ -323,65 +440,53 @@
       }
     }
 
-    // 处理扫描结果：如果内容是链接，在新标签页打开；否则显示提示
     function handleScannedContent(qrText) {
       const trimmed = qrText.trim();
-      
-      // 防止连续扫描同一个码不停开标签
+      if (!trimmed) return;
+
+      // 更新界面显示框 (总是显示最新扫描内容)
+      const isLink = isValidHttpUrl(trimmed);
+      updateResultDisplay(trimmed, isLink);
+
+      // 冷却/重复检查
       if (lastScannedText === trimmed && scanCooldown) {
-        console.log('相同内容冷却中，忽略');
+        console.log('Cooldown active, same content ignored.');
         return;
       }
 
-      if (!trimmed) return;
-
-      // 判断是否是网址
-      if (isValidHttpUrl(trimmed)) {
-        // 更新状态
-        setStatus(`✅ 扫描到链接:<br><a href="${trimmed}" target="_blank">${trimmed}</a><br>正在新标签页打开……`);
+      if (isLink) {
+        setStatus(`✅ Link found. Opening in new tab…<br><a href="${trimmed}" target="_blank">${trimmed}</a>`);
         lastScannedText = trimmed;
         scanCooldown = true;
         
-        // 打开新标签页
         const newWin = window.open(trimmed, '_blank');
         if (!newWin) {
-          setStatus(`⚠️ 浏览器可能阻止了弹窗。<br>🔗 <a href="${trimmed}" target="_blank">点击手动打开链接</a>`, false);
-        } else {
-          // 新窗口打开成功
+          setStatus(`⚠️ Pop-up blocked. <a href="${trimmed}" target="_blank">Click to open manually</a>`, false);
         }
-
-        // 停止扫描 (可选，但通常扫描到链接后暂停比较好，避免重复)
-        stopScanningAndCamera();
-        // 显示重置按钮，隐藏停止按钮
-        stopBtn.style.display = 'none';
-        resetBtn.style.display = 'inline-block';
         
-        // 3秒后冷却重置 (但已经停止扫描了，无所谓)
-        setTimeout(() => { scanCooldown = false; }, 2000);
+        // 扫描到链接后停止相机 (保持结果可见)
+        stopScanningAndCamera();
+        stopBtn.style.display = 'none';
+        resetBtn.style.display = 'inline-flex';
+        
+        setTimeout(() => { scanCooldown = false; }, COOLDOWN_MS);
       } else {
-        // 不是链接，提示内容
-        setStatus(`📋 扫描内容 (非链接): "${trimmed.substring(0, 50)}${trimmed.length>50?'…':''}"<br>请扫描包含网址的二维码`, false);
+        setStatus(`📋 Scanned text (not a link): "${trimmed.substring(0, 45)}${trimmed.length>45?'…':''}"`, false);
         lastScannedText = trimmed;
-        // 不是链接，不打开，但仍然记录冷却避免反复提示
         scanCooldown = true;
         setTimeout(() => { scanCooldown = false; }, 1200);
       }
     }
 
-    // ---------- 扫描循环 (基于 requestAnimationFrame) ----------
     function scanTick() {
       if (!scanningActive) {
         animationFrame = null;
         return;
       }
 
-      // 确保视频已就绪
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        // 设置 canvas 尺寸与视频一致
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
-        // 绘制当前帧
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         try {
@@ -391,17 +496,13 @@
           });
           
           if (code && code.data) {
-            // 解析成功
             handleScannedContent(code.data);
-            // 注意: handleScannedContent 里可能调用了 stopScanningAndCamera 将 scanningActive 设为 false
-            // 如果停止了，就不再继续 requestAnimationFrame
           }
         } catch (e) {
-          console.warn('jsQR 处理出错:', e);
+          console.warn('jsQR error:', e);
         }
       }
 
-      // 继续下一帧 (如果仍在活跃状态)
       if (scanningActive) {
         animationFrame = requestAnimationFrame(scanTick);
       } else {
@@ -409,53 +510,41 @@
       }
     }
 
-    // 停止扫描循环并释放摄像头
     function stopScanningAndCamera() {
       scanningActive = false;
-      
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
       }
-
-      // 关闭摄像头流
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
         stream = null;
       }
-      
       video.srcObject = null;
       
-      // 显示覆盖层（但不完全隐藏视频, 让用户看到停止状态）
       overlay.classList.remove('hidden');
-      startBtn.style.display = 'inline-block';  // 可重新启动
-      stopBtn.style.display = 'none';
-      // 重置按钮会在扫描到链接后显示，如果手动停止我们也可以显示重置(重新开始)按钮
-      if (resetBtn.style.display !== 'inline-block') {
-        // 但保留 reset 按钮如果之前出现过
-      }
-      // 改变覆盖层文字
       const overlayText = overlay.querySelector('.overlay-text');
-      if (overlayText) overlayText.textContent = '相机已停止';
+      if (overlayText) overlayText.textContent = 'Camera stopped';
       const hint = overlay.querySelector('.overlay-hint');
-      if (hint) hint.textContent = '点击「启动扫描」重新开始';
+      if (hint) hint.textContent = 'Press Start to scan again';
       
-      setStatus('⏸️ 相机已关闭。点击启动扫描继续。');
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+      // 不自动清空结果框，保留最后扫描内容
     }
 
-    // 启动摄像头 + 扫描循环
     async function startScanner() {
-      // 如果已经有流先停止
       if (stream) {
         stopScanningAndCamera();
       }
 
-      // 清空上次扫描记录
       lastScannedText = '';
       scanCooldown = false;
+      // 不清空结果框，但可以显示等待状态 (保留旧数据或重置)
+      // 为了清晰，启动时展示等待信息
+      updateResultDisplay('', false);
       
       try {
-        // 请求后置摄像头 (环境)
         const newStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false
@@ -464,73 +553,61 @@
         stream = newStream;
         video.srcObject = stream;
         video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
         
-        // 等待视频元数据加载
         await new Promise((resolve) => {
-          video.onloadedmetadata = () => {
-            resolve();
-          };
+          video.onloadedmetadata = () => resolve();
         });
         
         await video.play();
         
-        // 隐藏覆盖层，显示视频
         overlay.classList.add('hidden');
         startBtn.style.display = 'none';
-        stopBtn.style.display = 'inline-block';
-        resetBtn.style.display = 'none';   // 开始扫描后隐藏重置
+        stopBtn.style.display = 'inline-flex';
+        resetBtn.style.display = 'none';
         
-        // 激活扫描标志
         scanningActive = true;
+        setStatus('📡 Scanning — point camera at QR code. Link opens automatically.');
         
-        // 更新状态
-        setStatus('📡 扫描中 — 将二维码对准摄像头，链接会自动打开');
-        
-        // 启动 requestAnimationFrame 循环
         if (animationFrame) cancelAnimationFrame(animationFrame);
         animationFrame = requestAnimationFrame(scanTick);
         
       } catch (error) {
-        console.error('摄像头错误:', error);
-        setStatus('❌ 无法访问摄像头。请授予权限或检查设备。', false);
+        console.error('Camera error:', error);
+        setStatus('❌ Cannot access camera. Please grant permission.', false);
         overlay.classList.remove('hidden');
         const overlayText = overlay.querySelector('.overlay-text');
-        if (overlayText) overlayText.textContent = '摄像头不可用';
+        if (overlayText) overlayText.textContent = 'Camera unavailable';
         startBtn.style.display = 'inline-block';
         stopBtn.style.display = 'none';
         scanningActive = false;
         stream = null;
+        updateResultDisplay('', false);
       }
     }
 
-    // 重置/重新开始 (跟启动类似，但会强制重置界面)
     function resetAndRestart() {
-      // 清理之前的任何状态
       if (stream) {
         stopScanningAndCamera();
       }
       lastScannedText = '';
       scanCooldown = false;
       
-      // 确保UI统一
       overlay.classList.remove('hidden');
       const overlayText = overlay.querySelector('.overlay-text');
-      if (overlayText) overlayText.textContent = '准备扫描';
+      if (overlayText) overlayText.textContent = 'Ready to scan';
       const hint = overlay.querySelector('.overlay-hint');
-      if (hint) hint.textContent = '将二维码置于框内';
+      if (hint) hint.textContent = 'Place QR code inside frame';
       
       startBtn.style.display = 'inline-block';
       stopBtn.style.display = 'none';
       resetBtn.style.display = 'none';
       
-      setStatus('🔄 就绪。点击「启动扫描」开始');
-      
-      // 清空canvas残留
+      setStatus('🔄 Ready. Press "Start Scanning".');
+      updateResultDisplay('', false);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // ---------- 事件绑定 ----------
+    // Event listeners
     startBtn.addEventListener('click', (e) => {
       e.preventDefault();
       startScanner();
@@ -539,11 +616,10 @@
     stopBtn.addEventListener('click', (e) => {
       e.preventDefault();
       stopScanningAndCamera();
-      // 停止后显示重置按钮以便重新开始
-      resetBtn.style.display = 'inline-block';
+      resetBtn.style.display = 'inline-flex';
       stopBtn.style.display = 'none';
       startBtn.style.display = 'none';
-      setStatus('⏸️ 扫描已手动停止');
+      setStatus('⏸️ Scanning stopped manually.');
     });
 
     resetBtn.addEventListener('click', (e) => {
@@ -551,22 +627,15 @@
       resetAndRestart();
     });
 
-    // 如果用户在未启动时点击重置也可以调用
-    // 确保页面加载完成后，如果没有流，reset隐藏，但显示启动
     window.addEventListener('load', () => {
-      // 初始状态：未启动
-      resetAndRestart();  // 设置一致UI
+      resetAndRestart();
     });
 
-    // 额外处理：如果页面卸载时释放摄像头
     window.addEventListener('beforeunload', () => {
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
       }
     });
-
-    // 让用户也可以再次从覆盖层启动 (按钮已包含)
-    // 对可能的小屏幕优化
   })();
 </script>
 </body>
